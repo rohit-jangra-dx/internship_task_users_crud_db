@@ -1,8 +1,9 @@
-from app.db import UsersInMemoryStore
+from typing import  AsyncIterator
 
-# This single instance will be shared
-_users_store = UsersInMemoryStore()
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.db import sessionmanager
 
-# via this function
-def get_users_store() -> UsersInMemoryStore:
-    return _users_store
+async def get_db() -> AsyncIterator[AsyncSession]:
+    async with sessionmanager.session() as session:
+        yield session
+    

@@ -1,9 +1,17 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from app.exceptions import UserAlreadyExistError, UserNotFoundError
 from app.routes import router as users_router
+from app.db import sessionmanager
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield 
+    await sessionmanager.close()
+
+app = FastAPI(lifespan=lifespan)
 
 app.include_router(users_router)
 
