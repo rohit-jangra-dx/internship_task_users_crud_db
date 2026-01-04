@@ -13,6 +13,7 @@ class ApiConfig(BaseSettings):
     
     environment: str = Field(default="development")
     database_url: str = Field(default="*")
+    test_database_url: str = Field(default="*")
     echo_sql: bool = True 
 
 config = ApiConfig()
