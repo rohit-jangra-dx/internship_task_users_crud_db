@@ -31,6 +31,7 @@ async def get_user(user_id: UUID, db: DBSession):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
+    return user 
 
 @router.post("", response_model=UserRead,  status_code=status.HTTP_201_CREATED)
 async def create_user(payload: UserCreate, db: DBSession):
@@ -79,7 +80,7 @@ async def delete_user(user_id: UUID, db: DBSession):
     result = await db.execute(
         select(UserDB).where(UserDB.id == user_id)
     )
-    user = result.scalar_one_or_none
+    user = result.scalar_one_or_none()
     
     if not user:
         raise HTTPException(

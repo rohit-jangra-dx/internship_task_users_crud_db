@@ -1,9 +1,8 @@
 import contextlib
-from typing import Any, AsyncIterator
+from typing import Any, AsyncIterator, Optional
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession, create_async_engine
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from app.config import config
 
 
 class DatabaseSessionManager:
@@ -48,5 +47,5 @@ class DatabaseSessionManager:
         finally:
             await session.close()
 
-sessionmanager = DatabaseSessionManager(config.database_url, {"echo": config.echo_sql})
+sessionmanager: Optional[DatabaseSessionManager]= None  
        

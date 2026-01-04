@@ -1,26 +1,26 @@
-import asyncio
 import pytest 
-import pytest_asyncio
-from typing import AsyncIterator
-
-from httpx import AsyncClient, ASGITransport
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
+from httpx import AsyncClient, ASGITransport
 
 from app.main import app 
-from app.tests.db import test_sessionmanager
 from app.dependencies import get_db
+from app.db import DatabaseSessionManager
+from app.config import config
 
-@pytest.fixture(scope="session")
-def event_loop():
-    loop = asyncio.new_event_loop()
-    yield loop
-    loop.close()
+@pytest.fixture
+async def test_sessionmanager():
+    assert "test" in config.test_database_url.lower(), \
+        "Don't create test db session on non-test database"
+    
+    manager = DatabaseSessionManager(config.test_database_url,{"echo": True})
+    yield manager 
+    await manager.close()
+
 
 TABLES = ["users"]   
 
-@pytest_asyncio.fixture(autouse=True)
-async def reset_database():
+@pytest.fixture(autouse=True)
+async def reset_database(test_sessionmanager):
     async with test_sessionmanager.session() as session:
         for table in TABLES:
             await session.execute(
@@ -30,8 +30,8 @@ async def reset_database():
         await session.commit()
     
     
-@pytest_asyncio.fixture
-async def client():
+@pytest.fixture
+async def client(test_sessionmanager):
     async def override_get_db():
         async with test_sessionmanager.session() as session:
             yield session

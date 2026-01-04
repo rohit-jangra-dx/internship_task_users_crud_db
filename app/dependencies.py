@@ -1,9 +1,10 @@
 from typing import  AsyncIterator
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.db import sessionmanager
+import app.db as db 
 
 async def get_db() -> AsyncIterator[AsyncSession]:
-    async with sessionmanager.session() as session:
+    assert db.sessionmanager is not None, "Db not initialized"
+    async with db.sessionmanager.session() as session:
         yield session
     
